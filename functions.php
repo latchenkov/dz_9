@@ -1,26 +1,26 @@
 <?php
 
 // показ всех объявлений
-function showAll(){
+function showAll($link){
     $query = "SELECT id, date, title, price, seller_name FROM ads ORDER BY id";
-    $res = mysql_query($query) or die ('Запрос не удался:'.mysql_error());
+    $res = mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
     $data = array();
-    while($row = mysql_fetch_assoc($res)){
+    while($row = mysqli_fetch_assoc($res)){
         $data[] = $row;
     }
 return $data;
 }
 
 // добавление объявления
-function newAd($new_ad){
+function newAd($link, $new_ad){
     $query = "INSERT INTO ads (date, title, price, seller_name, private, email, allow_mails, phone, location_id, category_id, description)
               VALUES (now(), '$new_ad[title]', $new_ad[price], '$new_ad[seller_name]', $new_ad[private], '$new_ad[email]', $new_ad[allow_mails], '$new_ad[phone]', $new_ad[location_id], $new_ad[category_id], '$new_ad[description]')";
-    mysql_query($query) or die ('Запрос не удался:'.mysql_error());
+    mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
 }
 
 
 // редактирование объявления
-function updateAd ($update_ad, $id){
+function updateAd ($link, $update_ad, $id){
     $query = "UPDATE ads SET
                 title = '$update_ad[title]',
                 price = '$update_ad[price]',
@@ -33,54 +33,51 @@ function updateAd ($update_ad, $id){
                 category_id = $update_ad[category_id],
                 description = '$update_ad[description]'
             WHERE id = $id";
-    mysql_query($query) or die ('Запрос не удался:'.mysql_error());
+    mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
 }
 
 // показ конкрентного объявления
-function showAd($id){
+function showAd($link, $id){
     $query = "SELECT * FROM ads WHERE id = $id";
-    $res = mysql_query($query) or die ('Запрос не удался:'.mysql_error());
-	$row = mysql_fetch_assoc($res);
+    $res = mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
+	$row = mysqli_fetch_assoc($res);
 	return $row;
 }
 // удаление объявления
-function delAd($id){
+function delAd($link, $id){
 	$query = "DELETE FROM ads WHERE id = $id";
-	mysql_query($query) or die ('Запрос не удался:'.mysql_error());
+	mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
 }
 
 // список городов
-function location_id(){
+function location_id($link){
     $query = "SELECT id, location FROM locations ORDER BY location";
-    $res = mysql_query($query) or die ('Запрос не удался:'.mysql_error());
+    $res = mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
     $data = array();
-    while($row = mysql_fetch_assoc($res)){
+    while($row = mysqli_fetch_assoc($res)){
         $data[$row['id']]=$row['location'];
     }
 return $data;
 }
 
 // список подкатегорий
-function label_id(){
-    $query = "SELECT id, label FROM labels";
-    $res = mysql_query($query) or die ('Запрос не удался:'.mysql_error());
+function label_id($link){
+    $query = "SELECT id, category FROM categorys WHERE parent_id IS NULL";
+    $res = mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
     $data = array();
-    while($row = mysql_fetch_assoc($res)){
-        $data[$row['id']]=$row['label'];
+    while($row = mysqli_fetch_assoc($res)){
+        $data[$row['id']]=$row['category'];
     }
 return $data;
 }
 
 // список категорий
-function category_id(){
-    $query = "SELECT id, label, category FROM categorys ";
-    $res = mysql_query($query) or die ('Запрос не удался:'.mysql_error());
+function category_id($link){
+    $query = "SELECT id, category, parent_id FROM categorys WHERE parent_id IS NOT NULL";
+    $res = mysqli_query( $link, $query) or die ('Запрос не удался:'.mysqli_error($link));
     $data = array();
-    while($row = mysql_fetch_assoc($res)){
-        $data[$row['label']][$row['id']]=$row['category'];
+    while($row = mysqli_fetch_assoc($res)){
+        $data[$row['parent_id']][$row['id']]=$row['category'];
     }
 return $data;
 }
-
-
-
